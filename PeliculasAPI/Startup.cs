@@ -16,10 +16,12 @@ namespace PeliculasAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
-            //Registrar DbContext
+            //Registro del DbContext
             services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            //Registro de AutoMapper
+            services.AddAutoMapper(typeof(Startup));
 
             //Permite evitar los ciclos infinitos en las relaciones de clases
             //services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
