@@ -40,7 +40,7 @@ namespace PeliculasAPI
                     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                     c.IncludeXmlComments(xmlPath);
                 }
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Blog API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Peliculas API", Version = "v1" });
             });
 
             services.AddCors(options =>
