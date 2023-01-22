@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using PeliculasAPI.Core.Interfaces.AzureStorageAccount;
 using PeliculasAPI.Infrastructure.Context;
+using PeliculasAPI.Infrastructure.Repositories.AzureStorageAccount;
 using System.Reflection;
 
 namespace PeliculasAPI
@@ -22,6 +24,8 @@ namespace PeliculasAPI
 
             //Registro de AutoMapper
             services.AddAutoMapper(typeof(Startup));
+
+            services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivos>();
 
             //Permite evitar los ciclos infinitos en las relaciones de clases
             //services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);

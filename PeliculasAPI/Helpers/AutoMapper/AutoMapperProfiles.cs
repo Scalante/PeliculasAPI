@@ -3,9 +3,9 @@ using PeliculasAPI.Core.DTOs.Actor;
 using PeliculasAPI.Core.DTOs.Genero;
 using PeliculasAPI.Core.Entities;
 
-namespace PeliculasAPI.Helpers
+namespace PeliculasAPI.Helpers.AutoMapper
 {
-    public class AutoMapperProfiles: Profile
+    public class AutoMapperProfiles : Profile
     {
         public AutoMapperProfiles()
         {
@@ -16,7 +16,7 @@ namespace PeliculasAPI.Helpers
 
             #region AutoMapper para la entidad Actor
             CreateMap<Actor, ActorDTO>().ReverseMap();
-            CreateMap<ActorCreacionDTO, Actor>();
+            CreateMap<ActorCreacionDTO, Actor>().ForMember(x => x.Foto, options => options.Ignore());
             #endregion
         }
 

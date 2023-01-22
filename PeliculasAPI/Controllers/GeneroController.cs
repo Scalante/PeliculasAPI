@@ -40,7 +40,7 @@ namespace PeliculasAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<GeneroDTO>>> Post([FromBody] GeneroCreacionDTO generoCreacionDTO)
+        public async Task<ActionResult> Post([FromBody] GeneroCreacionDTO generoCreacionDTO)
         {
             var entidad = _mapper.Map<Genero>(generoCreacionDTO);
             _context.Add(entidad);
@@ -51,7 +51,7 @@ namespace PeliculasAPI.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<List<GeneroDTO>>> Put(int id, [FromBody] GeneroCreacionDTO generoCreacionDTO)
+        public async Task<ActionResult> Put(int id, [FromBody] GeneroCreacionDTO generoCreacionDTO)
         {
             var entidad = _mapper.Map<Genero>(generoCreacionDTO);
             entidad.Id = id;
@@ -61,7 +61,7 @@ namespace PeliculasAPI.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult<List<GeneroDTO>>> Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             var existe = await _context.Generos.AnyAsync(x => x.Id == id);
 
