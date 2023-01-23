@@ -20,7 +20,7 @@ namespace PeliculasAPI.Infrastructure.Repositories.AzureStorageAccount
                 return;
             }
 
-            var cliente = new BlobContainerClient(this._connectionString, contenedor);
+            var cliente = new BlobContainerClient(_connectionString, contenedor);
             await cliente.CreateIfNotExistsAsync();
             var archivo = Path.GetFileName(ruta);
             var blob = cliente.GetBlobClient(archivo);
@@ -35,7 +35,7 @@ namespace PeliculasAPI.Infrastructure.Repositories.AzureStorageAccount
 
         public async Task<string> GuardarArchivo(byte[] contenido, string extension, string contenedor, string contentType)
         {
-            var cliente = new BlobContainerClient(this._connectionString, contenedor);
+            var cliente = new BlobContainerClient(_connectionString, contenedor);
             await cliente.CreateIfNotExistsAsync();
             cliente.SetAccessPolicy(PublicAccessType.Blob);
 

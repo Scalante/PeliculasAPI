@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PeliculasAPI.Core.DTOs.Actor;
 using PeliculasAPI.Core.DTOs.Genero;
+using PeliculasAPI.Core.DTOs.Paginacion;
 using PeliculasAPI.Core.Entities;
 using PeliculasAPI.Core.Interfaces.AzureStorageAccount;
+using PeliculasAPI.Helpers.Paginacion;
 using PeliculasAPI.Infrastructure.Context;
 
 namespace PeliculasAPI.Controllers
@@ -27,9 +29,11 @@ namespace PeliculasAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<ActorDTO>>> Get()
+        public async Task<ActionResult<List<ActorDTO>>> Get([FromQuery] PaginacionDTO paginacionDTO)
         {
-            var entidades = await _context.Actores.ToListAsync();
+            var queryable = _context.Actores.AsQueryable();
+            await HttpContext.InsertarParametrosPaginacion(queryable, paginacionDTO.CantidadRegistrosPagina);
+            var entidades = await queryable.Paginar(paginacionDTO).ToListAsync();
             return _mapper.Map<List<ActorDTO>>(entidades);
         }
 
@@ -59,7 +63,7 @@ namespace PeliculasAPI.Controllers
                     var contenido = memoryStream.ToArray();
                     var extension = Path.GetExtension(actorCreacionDTO.Foto.FileName);
                     var contentType = actorCreacionDTO.Foto.ContentType;
-                    entidad.Foto = await this._almacenadorArchivos.GuardarArchivo(contenido, extension, this._contenedor, contentType);
+                    entidad.Foto = await _almacenadorArchivos.GuardarArchivo(contenido, extension, _contenedor, contentType);
                 }
             }
 
@@ -79,7 +83,7 @@ namespace PeliculasAPI.Controllers
                 return NotFound();
             }
 
-            actorDB = this._mapper.Map(actorCreacionDTO, actorDB);
+            actorDB = _mapper.Map(actorCreacionDTO, actorDB);
 
             if (actorCreacionDTO.Foto != null)
             {
@@ -90,7 +94,7 @@ namespace PeliculasAPI.Controllers
                     var extension = Path.GetExtension(actorCreacionDTO.Foto.FileName);
                     var rutaActualFoto = actorDB.Foto;
                     var contentType = actorCreacionDTO.Foto.ContentType;
-                    actorDB.Foto = await this._almacenadorArchivos.EditarArchivo(contenido, extension, this._contenedor, rutaActualFoto, contentType);
+                    actorDB.Foto = await _almacenadorArchivos.EditarArchivo(contenido, extension, _contenedor, rutaActualFoto, contentType);
                 }
             }
 
