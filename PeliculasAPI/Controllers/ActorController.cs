@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PeliculasAPI.Core.DTOs.Actor;
-using PeliculasAPI.Core.DTOs.Genero;
 using PeliculasAPI.Core.DTOs.Paginacion;
 using PeliculasAPI.Core.Entities;
 using PeliculasAPI.Core.Interfaces.AzureStorageAccount;
 using PeliculasAPI.Helpers.Paginacion;
 using PeliculasAPI.Infrastructure.Context;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace PeliculasAPI.Controllers
 {
@@ -19,7 +19,7 @@ namespace PeliculasAPI.Controllers
         private readonly IMapper _mapper;
         private readonly IAlmacenadorArchivos _almacenadorArchivos;
         //Nombre de la carpeta que se creará en Azure Storage
-        private readonly string _contenedor = "actores";
+        private readonly string _nombreContenedorAzure = "actores";
 
         public ActorController(ApplicationDbContext context, IMapper mapper, IAlmacenadorArchivos almacenadorArchivos)
         {
@@ -41,7 +41,7 @@ namespace PeliculasAPI.Controllers
         [HttpGet("{id:int}", Name = "obtenerActor")]
         public async Task<ActionResult<ActorDTO>> Get(int id)
         {
-            var entidad = await _context.Generos.FirstOrDefaultAsync(x => x.Id == id);
+            var entidad = await _context.Actores.FirstOrDefaultAsync(x => x.Id == id);
 
             if (entidad == null)
             {
@@ -63,14 +63,14 @@ namespace PeliculasAPI.Controllers
                     var contenido = memoryStream.ToArray();
                     var extension = Path.GetExtension(actorCreacionDTO.Foto.FileName);
                     var contentType = actorCreacionDTO.Foto.ContentType;
-                    entidad.Foto = await _almacenadorArchivos.GuardarArchivo(contenido, extension, _contenedor, contentType);
+                    entidad.Foto = await _almacenadorArchivos.GuardarArchivo(contenido, extension, _nombreContenedorAzure, contentType);
                 }
             }
 
             _context.Add(entidad);
             await _context.SaveChangesAsync();
-            var dto = _mapper.Map<ActorDTO>(entidad);
-            return new CreatedAtRouteResult("obtenerActor", new { id = entidad.Id }, dto);
+            var actorDTO = _mapper.Map<ActorDTO>(entidad);
+            return new CreatedAtRouteResult("obtenerActor", new { id = entidad.Id }, actorDTO);
         }
 
         [HttpPut("{id:int}")]
@@ -94,12 +94,43 @@ namespace PeliculasAPI.Controllers
                     var extension = Path.GetExtension(actorCreacionDTO.Foto.FileName);
                     var rutaActualFoto = actorDB.Foto;
                     var contentType = actorCreacionDTO.Foto.ContentType;
-                    actorDB.Foto = await _almacenadorArchivos.EditarArchivo(contenido, extension, _contenedor, rutaActualFoto, contentType);
+                    actorDB.Foto = await _almacenadorArchivos.EditarArchivo(contenido, extension, _nombreContenedorAzure, rutaActualFoto, contentType);
                 }
             }
 
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        [HttpPatch("{id:int}")]
+        public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<ActorPatchDTO> jsonPatchDocument)
+        {
+            if (jsonPatchDocument == null)
+            {
+                return BadRequest();
+            }
+            var entidadDB = await _context.Actores.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (entidadDB == null)
+            {
+                return NotFound();
+            }
+
+            var entidadDTO = _mapper.Map<ActorPatchDTO>(entidadDB);
+
+            jsonPatchDocument.ApplyTo(entidadDTO, ModelState);
+
+            var esValido = TryValidateModel(entidadDTO);
+
+            if (!esValido)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _mapper.Map(entidadDTO, entidadDB);
+            await _context.SaveChangesAsync();
+            return NoContent();
+
         }
 
         [HttpDelete("{id:int}")]

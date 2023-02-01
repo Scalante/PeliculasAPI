@@ -31,7 +31,7 @@ namespace PeliculasAPI
             //services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
             //No muestra en la respuesta de la API los atributos que tienen como valor NULL, esto funciona con Controllers
-            services.AddControllers().AddJsonOptions(opciones => opciones.JsonSerializerOptions.DefaultIgnoreCondition
+            services.AddControllers().AddNewtonsoftJson().AddJsonOptions(opciones => opciones.JsonSerializerOptions.DefaultIgnoreCondition
                             = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull);
 
 
@@ -54,8 +54,6 @@ namespace PeliculasAPI
                 });
             });
         }
-
-
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
